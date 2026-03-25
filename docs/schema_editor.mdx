@@ -1,0 +1,84 @@
+---
+sidebar_position: 1
+title: SCHEMA 调整助手
+---
+
+import React, { useMemo, useState } from 'react';
+
+# SCHEMA 调整助手
+
+这个页面提供一个轻量级的前端配置器，帮助你通过表单快速生成和调整 `.schema` 文件片段，减少手工编辑时的格式错误。
+
+> 使用方式：填写「实体类型」和「属性」，右侧会实时生成 SCHEMA 模板，可直接复制到项目的 `*.schema` 文件中。
+
+function SchemaEditor() {
+  const [typeName, setTypeName] = useState('Company');
+  const [typeNameZh, setTypeNameZh] = useState('公司');
+  const [baseType, setBaseType] = useState('Entity');
+  const [propertyName, setPropertyName] = useState('name');
+  const [propertyNameZh, setPropertyNameZh] = useState('名称');
+  const [propertyType, setPropertyType] = useState('Text');
+  const [constraint, setConstraint] = useState('NotNull');
+
+  const schemaPreview = useMemo(() => {
+    return `Define ${typeName}(name_zh="${typeNameZh}", base_type="${baseType}") {\n  Property ${propertyName}(name_zh="${propertyNameZh}", object_type="${propertyType}", constraint=["${constraint}"])\n}`;
+  }, [typeName, typeNameZh, baseType, propertyName, propertyNameZh, propertyType, constraint]);
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div style={{ border: '1px solid #dcdfe6', borderRadius: '8px', padding: '16px' }}>
+        <h3>基础配置</h3>
+        <label>实体类型（英文）</label>
+        <input value={typeName} onChange={(e) => setTypeName(e.target.value)} style={{ width: '100%', marginBottom: '8px' }} />
+
+        <label>实体类型（中文）</label>
+        <input value={typeNameZh} onChange={(e) => setTypeNameZh(e.target.value)} style={{ width: '100%', marginBottom: '8px' }} />
+
+        <label>基类</label>
+        <select value={baseType} onChange={(e) => setBaseType(e.target.value)} style={{ width: '100%', marginBottom: '8px' }}>
+          <option value="Entity">Entity</option>
+          <option value="Concept">Concept</option>
+          <option value="Event">Event</option>
+        </select>
+
+        <h3>属性配置</h3>
+        <label>属性名（英文）</label>
+        <input value={propertyName} onChange={(e) => setPropertyName(e.target.value)} style={{ width: '100%', marginBottom: '8px' }} />
+
+        <label>属性名（中文）</label>
+        <input value={propertyNameZh} onChange={(e) => setPropertyNameZh(e.target.value)} style={{ width: '100%', marginBottom: '8px' }} />
+
+        <label>属性类型</label>
+        <select value={propertyType} onChange={(e) => setPropertyType(e.target.value)} style={{ width: '100%', marginBottom: '8px' }}>
+          <option value="Text">Text</option>
+          <option value="Integer">Integer</option>
+          <option value="Float">Float</option>
+          <option value="Date">Date</option>
+          <option value="Boolean">Boolean</option>
+        </select>
+
+        <label>约束</label>
+        <select value={constraint} onChange={(e) => setConstraint(e.target.value)} style={{ width: '100%' }}>
+          <option value="NotNull">NotNull</option>
+          <option value="Enum">Enum</option>
+          <option value="Regular">Regular</option>
+          <option value="MultiVal">MultiVal</option>
+        </select>
+      </div>
+
+      <div style={{ border: '1px solid #dcdfe6', borderRadius: '8px', padding: '16px' }}>
+        <h3>实时生成结果</h3>
+        <pre style={{ whiteSpace: 'pre-wrap', background: '#f6f8fa', padding: '12px', borderRadius: '6px' }}>{schemaPreview}</pre>
+      </div>
+    </div>
+  );
+}
+
+<SchemaEditor />
+
+## 推荐流程
+
+1. 先定义核心实体类型（比如 Company、Person、Event）。
+2. 每次只增量增加 1~2 个属性并验证。
+3. 先使用 `NotNull` 做基础约束，再按业务补充 `Enum`、`Regular`。
+4. 将生成片段复制到项目的 `*.schema` 文件后进行构建与抽样检查。
