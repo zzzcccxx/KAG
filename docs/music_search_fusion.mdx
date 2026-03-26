@@ -1,0 +1,88 @@
+---
+sidebar_position: 3
+title: 音乐搜索 × KAG 深度融合
+---
+
+import React, { useMemo, useState } from 'react';
+
+# 音乐搜索 × KAG 深度融合
+
+本页提供一个“前端工作台”示例，用于将音乐搜索请求按 KAG 的结构化检索方式组织成统一 Query Payload。
+
+function MusicSearchWorkbench() {
+  const [keywords, setKeywords] = useState('周杰伦 晴天');
+  const [genre, setGenre] = useState('pop');
+  const [mood, setMood] = useState('healing');
+  const [language, setLanguage] = useState('zh');
+  const [bpmMin, setBpmMin] = useState(70);
+  const [bpmMax, setBpmMax] = useState(120);
+
+  const payload = useMemo(
+    () => ({
+      text: keywords,
+      genres: genre ? [genre] : [],
+      moods: mood ? [mood] : [],
+      languages: language ? [language] : [],
+      bpm_min: Number(bpmMin),
+      bpm_max: Number(bpmMax),
+    }),
+    [keywords, genre, mood, language, bpmMin, bpmMax]
+  );
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div style={{ border: '1px solid #dcdfe6', borderRadius: '8px', padding: '16px' }}>
+        <h3>前端检索表单</h3>
+        <label>关键词</label>
+        <input value={keywords} onChange={(e) => setKeywords(e.target.value)} style={{ width: '100%', marginBottom: '8px' }} />
+
+        <label>流派</label>
+        <input value={genre} onChange={(e) => setGenre(e.target.value)} style={{ width: '100%', marginBottom: '8px' }} />
+
+        <label>情绪</label>
+        <input value={mood} onChange={(e) => setMood(e.target.value)} style={{ width: '100%', marginBottom: '8px' }} />
+
+        <label>语言</label>
+        <input value={language} onChange={(e) => setLanguage(e.target.value)} style={{ width: '100%', marginBottom: '8px' }} />
+
+        <label>BPM 最小值</label>
+        <input type="number" value={bpmMin} onChange={(e) => setBpmMin(e.target.value)} style={{ width: '100%', marginBottom: '8px' }} />
+
+        <label>BPM 最大值</label>
+        <input type="number" value={bpmMax} onChange={(e) => setBpmMax(e.target.value)} style={{ width: '100%' }} />
+      </div>
+
+      <div style={{ border: '1px solid #dcdfe6', borderRadius: '8px', padding: '16px' }}>
+        <h3>提交到后端的 KAG Query Payload</h3>
+        <pre style={{ whiteSpace: 'pre-wrap', background: '#f6f8fa', padding: '12px', borderRadius: '6px' }}>
+{JSON.stringify(payload, null, 2)}
+        </pre>
+      </div>
+    </div>
+  );
+}
+
+<MusicSearchWorkbench />
+
+## 端到端架构
+
+### 1) 前端页面层
+
+- 用户输入自然语言 + 结构化筛选（流派/情绪/BPM/语言）。
+- 统一产出 Query Payload，避免后端参数歧义。
+
+### 2) 数据中台层
+
+- 使用 `MusicDataHub` 将多来源歌曲元数据规范化。
+- 输出标准化 `Track` 记录并可转换为 SPG Record，便于接入 KAG Builder。
+
+### 3) 后端算法层
+
+- 使用 `KAGMusicSearchService` 执行“关键词召回 + Schema 过滤 + 图谱增强打分”。
+- 将歌手/专辑/歌词标签作为图关系信号做二次提升，实现更稳健的语义检索。
+
+## API 对接建议
+
+- 目录同步：`MusicSearchKAGFacade.sync_catalog(rows)`
+- 检索调用：`MusicSearchKAGFacade.search(payload, top_k)`
+- 图谱构建输入：`MusicSearchKAGFacade.export_spg_records()`
