@@ -1,0 +1,22 @@
+Define Artist(name_zh="歌手", base_type="Entity") {
+  Property name(name_zh="名称", object_type="Text", constraint=["NotNull"])
+  Property region(name_zh="地区", object_type="Text")
+  Property style(name_zh="风格", object_type="Text", constraint=["MultiVal"])
+}
+
+Define Album(name_zh="专辑", base_type="Entity") {
+  Property title(name_zh="标题", object_type="Text", constraint=["NotNull"])
+  Property release_date(name_zh="发行日期", object_type="Date")
+}
+
+Define Track(name_zh="歌曲", base_type="Entity") {
+  Property title(name_zh="歌曲名", object_type="Text", constraint=["NotNull"])
+  Property language(name_zh="语言", object_type="Text")
+  Property mood(name_zh="情绪", object_type="Text", constraint=["Enum"])
+  Property genre(name_zh="流派", object_type="Text")
+  Property bpm(name_zh="节奏", object_type="Integer")
+  Property lyric_tags(name_zh="歌词标签", object_type="Text", constraint=["MultiVal"])
+}
+
+Define Relation Artist_publish_Track(name_zh="发布歌曲", subject="Artist", object="Track") {}
+Define Relation Album_include_Track(name_zh="收录歌曲", subject="Album", object="Track") {}
